@@ -1,6 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedContent from "./animations/AnimatedContent";
+import Canvas from "./Canvas.jsx"
+
 
 const Level = () => {
   const navigate = useNavigate();
@@ -31,6 +33,7 @@ const Level = () => {
         scale={1.1}
         threshold={0.2}
       >
+        
         <button
           onClick={() => navigate("/win")}
           className="group w-auto bg-emerald-500 text-[#241909] font-bold py-6 px-32 mx-25 rounded-lg shadow-2xl shadow-lg transition-all duration-300 hover:bg-emerald-600 hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] hover:scale-105"
@@ -38,6 +41,9 @@ const Level = () => {
           Press to win free robux!
         </button>
       </AnimatedContent>
+
+      <Canvas id="test_canvas" dpr={[1, 2]}></Canvas>
+      
     </div>
   );
 };
