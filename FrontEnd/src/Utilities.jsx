@@ -83,6 +83,7 @@ const drawIndex = (indexLandmark, ctx) => {
 
   const screenX = ctx.canvas.width - smoothedPosition.x;
   const screenY = smoothedPosition.y;
+  console.log("screenX" + screenX + ", screenY" + screenY)
 
   ctx.beginPath();
   ctx.arc(screenX, screenY, 8, 0, 2 * Math.PI);
