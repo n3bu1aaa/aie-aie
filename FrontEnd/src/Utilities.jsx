@@ -5,6 +5,9 @@
 // return 5 for ring
 // return 6 for pinky
 
+let smoothedPosition = null;
+
+
 const fingerTips = {
   Thumb: 4,
   indexFinger: 8,
@@ -13,99 +16,176 @@ const fingerTips = {
   pinky: 20,
 };
 
-let prevPositions = [];
-const CONFIRMATION_COUNT = 5;
+const fingerDraw = {
+  Thumb: 4,
+  middleFinger: 12,
+  ringFinger: 16,
+  pinky: 20,
+};
 
+let recentPositions = []; // Array of {x, y}
+const MAX_POINTS = 7;
+
+let prevPositions = []; // distances
+const CONFIRMATION_COUNT = 3;
 export const drawHand = (predictions, ctx) => {
-  if (predictions.length > 0) {
-    let result = null;
+  if (predictions.length === 0) return null;
 
-    predictions.forEach((prediction) => {
-      const landmarks = prediction.landmarks;
+  let result = null;
 
-      const thumbX = landmarks[4][0];
-      const thumbY = landmarks[4][1];
+  predictions.forEach((prediction) => {
+    const landmarks = prediction.landmarks;
+    drawIndex(landmarks[8], ctx);
+    drawLandmarks(ctx, landmarks);
 
-      let distanceToThumb = {};
+    const gesture = detectGesture(landmarks);
+    if (gesture) result = gesture;
+  });
 
-      for (const finger in fingerTips) {
-        const tipIndex = fingerTips[finger];
+  console.log(result && result);
+  return result;
+};
 
-        if (tipIndex !== 4) {
-          const dist = calculateDistance(
-            thumbX,
-            thumbY,
-            landmarks[tipIndex][0],
-            landmarks[tipIndex][1]
-          );
-          distanceToThumb[finger] = dist;
-        }
+const drawLandmarks = (ctx, landmarks) => {
+  for (const finger in fingerDraw) {
+    const tipIndex = fingerDraw[finger];
+    const x = ctx.canvas.width - landmarks[tipIndex][0];
+    const y = landmarks[tipIndex][1];
 
-        const x = landmarks[tipIndex][0];
-        const y = landmarks[tipIndex][1];
-        const invertedX = 640 / 2 - (x - 640 / 2);
-        ctx.beginPath();
-        ctx.arc(invertedX, y, 5, 0, 3 * Math.PI);
-        ctx.fillStyle = "indigo";
-        ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, 3 * Math.PI);
+    ctx.fillStyle = "indigo";
+    ctx.fill();
+  }
+};
+
+
+  function lerp(a, b, t) {
+    return a + (b - a) * t;
+  }
+
+const drawIndex = (indexLandmark, ctx) => {
+  recentPositions.push({ x: indexLandmark[0], y: indexLandmark[1] });
+  if (recentPositions.length > MAX_POINTS) {
+    recentPositions.shift(); // Keep buffer small
+  }
+
+  const average = getAveragePosition(recentPositions);
+
+  // Apply linear interpolation toward the average
+  if (!smoothedPosition) {
+    smoothedPosition = { ...average }; // Initialize on first frame
+  } else {
+    const smoothingFactor = 0.25; // Smaller = smoother, slower to update
+    smoothedPosition.x = lerp(smoothedPosition.x, average.x, smoothingFactor);
+    smoothedPosition.y = lerp(smoothedPosition.y, average.y, smoothingFactor);
+  }
+
+  const screenX = ctx.canvas.width - smoothedPosition.x;
+  const screenY = smoothedPosition.y;
+
+  ctx.beginPath();
+  ctx.arc(screenX, screenY, 8, 0, 2 * Math.PI);
+  ctx.fillStyle = "green";
+  ctx.fill();
+
+   // ⬇️ Move the fake HTML cursor
+  const htmlCursor = document.getElementById("finger-cursor");
+  if (htmlCursor) {
+    htmlCursor.style.left = `${window.innerWidth - smoothedPosition.x}px`;
+    htmlCursor.style.top = `${smoothedPosition.y}px`;
+  }
+};
+
+const detectGesture = (landmarks) => {
+  const selectedTips = [
+    landmarks[fingerTips.Thumb],
+    landmarks[fingerTips.indexFinger],
+    landmarks[fingerTips.middleFinger],
+    landmarks[fingerTips.ringFinger],
+    landmarks[fingerTips.pinky],
+  ];
+
+  const together = areFingersTogether(selectedTips, 175, 50);
+
+  if (together) {
+    const confirmed = confirmPosition(2);
+    if (confirmed) return "Thumb, middle, ring, and pinky are together!";
+  } else {
+    const distances = getDistancesToThumb(landmarks);
+    const { finger, value } = findClosestFinger(distances);
+
+    if (value <= 75) {
+      const tipIndex = fingerTips[finger];
+      const fingerTip = landmarks[tipIndex];
+
+      const otherTips = Object.keys(fingerTips)
+        .filter((f) => f !== finger && f !== "Thumb")
+        .map((f) => landmarks[fingerTips[f]]);
+
+      if (isIsolatedFromOthers(fingerTip, otherTips, 50)) {
+        const gestureCode = {
+          indexFinger: 3,
+          middleFinger: 4,
+          ringFinger: 5,
+          pinky: 6,
+        }[finger];
+
+        const confirmed = confirmPosition(gestureCode);
+        if (confirmed) return `${finger} is touching thumb`;
       }
-
-      const selectedTips = [
-        landmarks[fingerTips.Thumb],
-        landmarks[fingerTips.indexFinger],
-        landmarks[fingerTips.middleFinger],
-        landmarks[fingerTips.ringFinger],
-        landmarks[fingerTips.pinky],
-      ];
-
-      const together = areFingersTogether(selectedTips, 150, 50);
-
-      if (together) {
-        const confirmed = confirmPosition(2);
-        if (confirmed) result = "Thumb, middle, ring, and pinky are together!";
-      } else {
-        let finger = null;
-        let smallestValue = Infinity;
-
-        for (const [key, value] of Object.entries(distanceToThumb)) {
-          if (value < smallestValue) {
-            smallestValue = value;
-            finger = key;
-          }
-        }
-
-        if (smallestValue <= 75) {
-          const tipIndex = fingerTips[finger];
-          const fingerTip = landmarks[tipIndex];
-
-          const otherTips = Object.keys(fingerTips)
-            .filter((f) => f !== finger && f !== "Thumb")
-            .map((f) => landmarks[fingerTips[f]]);
-
-          const isIsolated = isIsolatedFromOthers(fingerTip, otherTips, 50);
-
-          if (isIsolated) {
-            let confirmed;
-            if (finger === "indexFinger") confirmed = confirmPosition(3);
-            else if (finger === "middleFinger") confirmed = confirmPosition(4);
-            else if (finger === "ringFinger") confirmed = confirmPosition(5);
-            else if (finger === "pinky") confirmed = confirmPosition(6);
-
-            if (confirmed) result = `${finger} is touching thumb`;
-          }
-        } else {
-          const confirmed = confirmPosition(1);
-          if (confirmed) result = "No fingers together.";
-        }
-      }
-    });
-
-    return result;
+    } else {
+      const confirmed = confirmPosition(1);
+      if (confirmed) return "No fingers together.";
+    }
   }
 
   return null;
 };
 
+const getDistancesToThumb = (landmarks) => {
+  const distances = {};
+  const thumbX = landmarks[fingerTips.Thumb][0];
+  const thumbY = landmarks[fingerTips.Thumb][1];
+
+  for (const finger in fingerTips) {
+    if (finger === "Thumb") continue;
+    const [x, y] = landmarks[fingerTips[finger]];
+    distances[finger] = calculateDistance(thumbX, thumbY, x, y);
+  }
+
+  return distances;
+};
+
+function getAveragePosition(points) {
+  const sum = points.reduce(
+    (acc, p) => {
+      acc.x += p.x;
+      acc.y += p.y;
+      return acc;
+    },
+    { x: 0, y: 0 }
+  );
+
+  return {
+    x: sum.x / points.length,
+    y: sum.y / points.length,
+  };
+}
+
+const findClosestFinger = (distances) => {
+  let smallestValue = Infinity;
+  let finger = null;
+
+  for (const [key, value] of Object.entries(distances)) {
+    if (value < smallestValue) {
+      smallestValue = value;
+      finger = key;
+    }
+  }
+
+  return { finger, value: smallestValue };
+};
 
 const calculateDistance = (x1, y1, x2, y2) => {
   const dx = x2 - x1;
@@ -115,6 +195,10 @@ const calculateDistance = (x1, y1, x2, y2) => {
 
 const areFingersTogether = (tips, threshold, distFromIndex) => {
   // Check all tips are within the given threshold of each other
+  for (let tip of tips) {
+  if (!Array.isArray(tip) || tip.length < 2) return false;
+}
+
   for (let i = 0; i < tips.length; i++) {
     for (let j = i + 1; j < tips.length; j++) {
       const dist = calculateDistance(
@@ -129,10 +213,11 @@ const areFingersTogether = (tips, threshold, distFromIndex) => {
     }
   }
 
-//   Check if index finger (assumed to be tips[1]) is at least 100px away from all others
+  //   Check if index finger (assumed to be tips[1]) is at least 100px away from all others
   const indexTip = tips[1]; // Assuming order: Thumb, Index, Middle, Ring, Pinky
   for (let i = 0; i < tips.length; i++) {
-    if (i !== 1) { // skip index finger itself
+    if (i !== 1) {
+      // skip index finger itself
       const dist = calculateDistance(
         indexTip[0],
         indexTip[1],

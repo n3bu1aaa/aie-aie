@@ -6,7 +6,7 @@ import HandTracker from './HandTracker.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {/* <HandTracker /> */}
-    <App />
+    <HandTracker />
+    {/* <App /> */}
   </StrictMode>,
 )
