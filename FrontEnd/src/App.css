@@ -31,8 +31,12 @@
 
 canvas {
   width: 800;
-  border-radius: 50px;
   height: 800;
+  border-radius: 50px;
   aspect-ratio: 1/1;
   border: 1px solid black;
+}
+
+#Flower_img {
+  display: none;
 }

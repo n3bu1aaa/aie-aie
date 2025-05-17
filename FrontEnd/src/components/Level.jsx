@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedContent from "./animations/AnimatedContent";
 import Canvas from "./Canvas.jsx";
+import Flower_1 from "../assets/Flower_images/Flower_1.svg"
 
 const Level = () => {
   const [level, setLevel] = useState(1);
@@ -46,7 +47,12 @@ const Level = () => {
       </AnimatedContent>
       <div className="flex items-center justify-center">
         <Canvas id="test_canvas" dpr={[1, 2]}></Canvas>
+
+
+
       </div>
+
+      <img src= {Flower_1} alt="" id="Flower_img"/>
     </div>
   );
 };
