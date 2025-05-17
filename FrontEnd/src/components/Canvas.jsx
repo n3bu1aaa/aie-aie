@@ -10,8 +10,6 @@ function Canvas() {
 
     const [isPressed, setIsPressed] = useState(false)
 
-    
-
     const beginDraw = (e) => {
         contextReference.current.beginPath();
         contextReference.current.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
@@ -50,7 +48,6 @@ function Canvas() {
             onMouseUp={endDraw}
             />
         </div>
-
     )
 
    

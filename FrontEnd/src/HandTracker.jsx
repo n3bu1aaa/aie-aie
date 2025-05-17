@@ -12,7 +12,7 @@ const HandTracker = () => {
   const runHandpose = async () => {
     const net = await handpose.load();
     console.log("Handpose model loaded.");
-
+    
     // loop to detect hands
     setInterval(() => {
       detect(net);
@@ -46,7 +46,9 @@ const HandTracker = () => {
 
       // Draw mesh
       const ctx = canvasRef.current.getContext("2d");
-      drawHand(hand, ctx);
+      const inputList = drawHand(hand, ctx);
+
+      return inputList;
     }
   };
 

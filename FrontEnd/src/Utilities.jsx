@@ -31,19 +31,21 @@ const CONFIRMATION_COUNT = 3;
 export const drawHand = (predictions, ctx) => {
   if (predictions.length === 0) return null;
 
-  let result = null;
+  let currentGesture = null;
+  let indexCoordinates = null;
 
   predictions.forEach((prediction) => {
     const landmarks = prediction.landmarks;
-    drawIndex(landmarks[8], ctx);
+    const coords = drawIndex(landmarks[8], ctx);
+    if (coords) indexCoordinates = coords; 
+
     drawLandmarks(ctx, landmarks);
 
     const gesture = detectGesture(landmarks);
-    if (gesture) result = gesture;
+    if (gesture) currentGesture = gesture;
   });
 
-  console.log(result && result);
-  return result;
+  return [currentGesture, ...indexCoordinates];
 };
 
 const drawLandmarks = (ctx, landmarks) => {
@@ -59,8 +61,7 @@ const drawLandmarks = (ctx, landmarks) => {
   }
 };
 
-
-  function lerp(a, b, t) {
+  const lerp = (a, b, t) => {
     return a + (b - a) * t;
   }
 
@@ -83,7 +84,6 @@ const drawIndex = (indexLandmark, ctx) => {
 
   const screenX = ctx.canvas.width - smoothedPosition.x;
   const screenY = smoothedPosition.y;
-  console.log("screenX" + screenX + ", screenY" + screenY)
 
   ctx.beginPath();
   ctx.arc(screenX, screenY, 8, 0, 2 * Math.PI);
@@ -93,9 +93,11 @@ const drawIndex = (indexLandmark, ctx) => {
    // ⬇️ Move the fake HTML cursor
   const htmlCursor = document.getElementById("finger-cursor");
   if (htmlCursor) {
-    htmlCursor.style.left = `${window.innerWidth - smoothedPosition.x}px`;
+    htmlCursor.style.left = `${screenX + window.innerWidth/4}px`;
     htmlCursor.style.top = `${smoothedPosition.y}px`;
   }
+
+  return [screenX, screenY];
 };
 
 const detectGesture = (landmarks) => {
@@ -111,7 +113,7 @@ const detectGesture = (landmarks) => {
 
   if (together) {
     const confirmed = confirmPosition(2);
-    if (confirmed) return "Thumb, middle, ring, and pinky are together!";
+    if (confirmed) return 2;
   } else {
     const distances = getDistancesToThumb(landmarks);
     const { finger, value } = findClosestFinger(distances);
@@ -133,11 +135,11 @@ const detectGesture = (landmarks) => {
         }[finger];
 
         const confirmed = confirmPosition(gestureCode);
-        if (confirmed) return `${finger} is touching thumb`;
+        if (confirmed) return gestureCode;
       }
     } else {
       const confirmed = confirmPosition(1);
-      if (confirmed) return "No fingers together.";
+      if (confirmed) return 1;
     }
   }
 
