@@ -99,13 +99,12 @@ export const drawHand = (predictions, ctx) => {
         }
       }
     });
-
+    console.log(result && result);
     return result;
   }
 
   return null;
 };
-
 
 const calculateDistance = (x1, y1, x2, y2) => {
   const dx = x2 - x1;
@@ -129,10 +128,11 @@ const areFingersTogether = (tips, threshold, distFromIndex) => {
     }
   }
 
-//   Check if index finger (assumed to be tips[1]) is at least 100px away from all others
+  //   Check if index finger (assumed to be tips[1]) is at least 100px away from all others
   const indexTip = tips[1]; // Assuming order: Thumb, Index, Middle, Ring, Pinky
   for (let i = 0; i < tips.length; i++) {
-    if (i !== 1) { // skip index finger itself
+    if (i !== 1) {
+      // skip index finger itself
       const dist = calculateDistance(
         indexTip[0],
         indexTip[1],
