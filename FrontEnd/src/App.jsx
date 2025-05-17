@@ -7,10 +7,6 @@ import Instructions from "./components/Instructions";
 import { useEffect } from "react";
 import HandTracker from "./HandTracker";
 
-function App() {
-  useEffect(() => {
-    document.title = "BloomTrace";
-  }, []);
   return (
     <div>
       {/* <HandTracker /> */}
@@ -27,4 +23,3 @@ function App() {
     </div>
   );
 }
-export default App;

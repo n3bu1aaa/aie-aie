@@ -15,8 +15,6 @@ function Canvas() {
   const [colorIndex, setColorIndex] = useState(0);
   const [sizeIndex, setSizeIndex] = useState(0);
   const [isDrawing, setIsDrawing] = useState(false);
-
-  
   useEffect(() => {
     const canvas = drawCanvasRef.current;
     canvas.width = 800;
