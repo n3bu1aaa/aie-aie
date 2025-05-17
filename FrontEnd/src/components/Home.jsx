@@ -21,30 +21,44 @@ const Home = () => {
             BLOOMTRACE
           </p>
         </AnimatedContent>
-        <AnimatedContent
-          distance={150}
-          direction="horizontal"
-          delay={600}
-          reverse={false}
-          config={{ tension: 80, friction: 20 }}
-          initialOpacity={0}
-          animateOpacity
-          scale={1.1}
-          threshold={0.2}
-        >
-          <button
-            onClick={() => navigate("/instructions")}
-            className="group w-auto bg-emerald-500 text-[#241909] font-bold py-6 px-32 mx-15 text-2xl rounded-lg shadow-2xl shadow-lg transition-all duration-300 hover:bg-emerald-600 hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] hover:scale-105"
+        <div className="flex items-center justify-center">
+          <AnimatedContent
+            distance={150}
+            direction="horizontal"
+            delay={600}
+            reverse={true}
+            config={{ tension: 80, friction: 20 }}
+            initialOpacity={0}
+            animateOpacity
+            scale={1.1}
+            threshold={0.2}
           >
-            Tutorial
-          </button>
-          <button
-            onClick={() => navigate("/level")}
-            className="group w-auto bg-emerald-500 text-[#241909] font-bold py-6 px-32 mx-15 text-2xl rounded-lg shadow-2xl shadow-lg transition-all duration-300 hover:bg-emerald-600 hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] hover:scale-105"
+            <button
+              onClick={() => navigate("/instructions")}
+              className="group w-auto bg-emerald-500 text-[#241909] font-bold py-6 px-32 mx-15 text-2xl rounded-lg shadow-2xl shadow-lg transition-all duration-300 hover:bg-emerald-600 hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] hover:scale-105"
+            >
+              Tutorial
+            </button>
+          </AnimatedContent>
+          <AnimatedContent
+            distance={150}
+            direction="horizontal"
+            delay={600}
+            reverse={false}
+            config={{ tension: 80, friction: 20 }}
+            initialOpacity={0}
+            animateOpacity
+            scale={1.1}
+            threshold={0.2}
           >
-            Level 1
-          </button>
-        </AnimatedContent>
+            <button
+              onClick={() => navigate("/level")}
+              className="group w-auto bg-emerald-500 text-[#241909] font-bold py-6 px-32 mx-15 text-2xl rounded-lg shadow-2xl shadow-lg transition-all duration-300 hover:bg-emerald-600 hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] hover:scale-105"
+            >
+              Level 1
+            </button>
+          </AnimatedContent>
+        </div>
       </div>
     </div>
   );
