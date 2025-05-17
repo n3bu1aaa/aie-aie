@@ -22,11 +22,18 @@
 //   );
 // }
 // export default App;
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HandTracker from "./HandTracker";
 
 export default function App() {
   const [inputList, setInputList] = useState([]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log("inputList:", inputList);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [inputList]);
 
   return (
     <div>

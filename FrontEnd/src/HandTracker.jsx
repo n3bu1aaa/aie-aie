@@ -48,7 +48,6 @@ const HandTracker = ({ setInputList }) => {
       const ctx = canvasRef.current.getContext("2d");
       const inputList = drawHand(hand, ctx);
 
-      console.log(inputList); // Should say "function"
       if (typeof setInputList === "function") {
         setInputList(inputList);
       }
@@ -102,10 +101,6 @@ const HandTracker = ({ setInputList }) => {
       </div>
     </header>
 
-    <div
-      id="finger-cursor"
-      className="fixed w-5 h-5 bg-green-500 rounded-full pointer-events-none z-50"
-    />
   </div>
 );
 };
