@@ -10,16 +10,12 @@ function Canvas() {
   const imageRef = useRef(null);
   const contextRef = useRef(null);
 
-
-  const colorOptions = ["#75B9BE", "#114B5F", "#EFC7C2", "#291720", "#820263"];
-  const sizeOptions = [2, 8, 16, 50];
+  const colorOptions = ["black", "blue", "green", "yellow", "orange"];
+  const sizeOptions = [2, 8, 16, 200];
 
   const [colorIndex, setColorIndex] = useState(0);
   const [sizeIndex, setSizeIndex] = useState(0);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [inputList, setInputList] = useState([]);
-
-  
   useEffect(() => {
     const canvas = drawCanvasRef.current;
     canvas.width = 800;
@@ -52,13 +48,13 @@ function Canvas() {
   
   const startDraw = (e) => {
     contextRef.current.beginPath();
-    contextRef.current.moveTo(inputList[1], inputList[2]);
+    contextRef.current.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
     setIsDrawing(true);
   };
 
   const draw = (e) => {
     if (!isDrawing) return;
-    contextRef.current.lineTo(inputList[1], inputList[1]);
+    contextRef.current.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
     contextRef.current.stroke();
   };
 
@@ -128,7 +124,7 @@ function Canvas() {
 
   return (
     <div style={{ position: "relative", width: 800, height: 800 }}>
-        <HandTracker setInputList={setInputList} />
+     
       <canvas
         ref={overlayCanvasRef}
         width="800"
@@ -141,21 +137,7 @@ function Canvas() {
           pointerEvents: "none"
         }}
       />
-            <div
-        id="finger-cursor"
-        style={{
-        position: "absolute",
-        width: "20px",
-        height: "20px",
-        backgroundColor: "green",
-        borderRadius: "50%",
-        pointerEvents: "none",
-        zIndex: 50,
-        top: inputList[2] - 10 || 0, // y-coordinate
-        left: inputList[1] - 10 || 0, // x-coordinate
-        transition: "top 0.05s, left 0.05s"
-        }}
-        />
+
       
       <canvas
         ref={drawCanvasRef}
