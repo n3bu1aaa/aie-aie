@@ -1,14 +1,24 @@
-import { useState } from 'react'
-import './App.css'
+import "./App.css";
+import Win from "./components/Win";
+import Level from "./components/Level";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./components/Home";
+import { useEffect } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  useEffect(() => {
+    document.title = "BloomTrace";
+  }, []);
   return (
-    <h1 class="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-  )
+    <Router>
+      <div>
+        <Routes>
+          <Route path="/win" element={<Win />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/level" element={<Level />} />
+        </Routes>
+      </div>
+    </Router>
+  );
 }
-
-export default App
+export default App;
