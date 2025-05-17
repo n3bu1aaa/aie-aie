@@ -7,6 +7,7 @@ import Instructions from "./components/Instructions";
 import { useEffect } from "react";
 import HandTracker from "./HandTracker";
 
+function App() {
   return (
     <div>
       {/* <HandTracker /> */}
@@ -23,3 +24,5 @@ import HandTracker from "./HandTracker";
     </div>
   );
 }
+
+export default App;
