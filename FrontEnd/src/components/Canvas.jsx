@@ -2,8 +2,8 @@ import { useRef, useEffect, useState, useMemo } from "react";
 import "../App.css";
 
 function Canvas() {
-  let color_array = ["black", "blue", "green", "yellow", "orange"];
-  let size_array = [2, 8, 16, 200];
+  let color_array = ["#75B9BE", "#114B5F", "#EFC7C2", "#291720", "#820263"];
+  let size_array = [2, 8, 16, 50];
 
   const canvasReference = useRef(null);
   const contextReference = useRef(null);
@@ -73,9 +73,10 @@ function Canvas() {
     canvas.height = 800;
 
     const context = canvas.getContext("2d");
-    context.linecap = "round";
+    context.linecap = "butt";
+    context.translate(0.5, 0.5);
     context.strokeStyle = color[0];
-    context.lineWidth = balls;
+    context.lineWidth = 2;
     contextReference.current = context;
   }, [color]);
 
