@@ -23,10 +23,10 @@ const fingerDraw = {
 };
 
 let recentPositions = []; // Array of {x, y}
-const MAX_POINTS = 12; //7
+const MAX_POINTS = 7;
 
 let prevPositions = []; // distances
-const CONFIRMATION_COUNT = 4;
+const CONFIRMATION_COUNT = 10;
 
 export const drawHand = (predictions, ctx) => {
   if (predictions.length === 0) return null;
@@ -77,7 +77,7 @@ const drawIndex = (indexLandmark, ctx) => {
   if (!smoothedPosition) {
     smoothedPosition = { ...average }; // Initialize on first frame
   } else {
-    const smoothingFactor = 0.1; // Smaller = smoother, slower to update, p.15
+    const smoothingFactor = 0.25; // Smaller = smoother, slower to update
     smoothedPosition.x = lerp(smoothedPosition.x, average.x, smoothingFactor);
     smoothedPosition.y = lerp(smoothedPosition.y, average.y, smoothingFactor);
   }
@@ -111,7 +111,7 @@ const detectGesture = (landmarks) => {
     landmarks[fingerTips.pinky],
   ];
 
-  const together = areFingersTogether(selectedTips, 250, 50);
+  const together = areFingersTogether(selectedTips, 250, 5000);
 
   if (together) {
     const confirmed = confirmPosition(2);
@@ -137,7 +137,7 @@ const detectGesture = (landmarks) => {
         }[finger];
 
         const confirmed = confirmPosition(gestureCode);
-        if (confirmed !== null) return gestureCode;
+        if (confirmed) return gestureCode;
       }
     } else {
       const confirmed = confirmPosition(1);
@@ -200,7 +200,6 @@ const calculateDistance = (x1, y1, x2, y2) => {
 
 const areFingersTogether = (tips, threshold, distFromIndex) => {
   // Check all tips are within the given threshold of each other
-
   for (let tip of tips) {
     if (!Array.isArray(tip) || tip.length < 2) return false;
   }
@@ -250,9 +249,9 @@ function confirmPosition(newPos) {
 
   // Check if all positions are close to each other
   if (prevPositions.length === CONFIRMATION_COUNT) {
-    const allSame = () => allIntegersSame(prevPositions);
+    const allSame = allIntegersSame(prevPositions);
 
-    if (allSame()) {
+    if (allSame) {
       // Confirmed position
       return prevPositions[0];
     }

@@ -52,10 +52,10 @@ const Home = () => {
             threshold={0.2}
           >
             <button
-              onClick={() => navigate("/intro/1")}
+              onClick={() => navigate("/intro/1/-1")}
               className="group w-auto bg-emerald-500 text-[#241909] font-bold py-6 px-32 mx-15 text-2xl rounded-lg shadow-2xl shadow-lg transition-all duration-300 hover:bg-emerald-600 hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] hover:scale-105"
             >
-              Flowers
+              Start!
             </button>
           </AnimatedContent>
         </div>

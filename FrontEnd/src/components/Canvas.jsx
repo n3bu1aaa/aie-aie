@@ -4,7 +4,7 @@ import HandTracker from "../HandTracker";
 
 let lastX = 0;
 let lastY = 0;
-let noot = () => flip();
+const SURENESS = 100;
 
 function Canvas({
   colorIndex,
@@ -15,6 +15,7 @@ function Canvas({
   setIsDrawing,
   nextLevel,
   flowerImage,
+  setAccuracy,
 }) {
   const drawCanvasRef = useRef(null); // Madaya's draw here
   const overlayCanvasRef = useRef(null);
@@ -22,13 +23,16 @@ function Canvas({
   const imageRef = useRef(null);
   const contextRef = useRef(null);
   const prevGesture = useRef(null);
+  const areYouSure = useRef([]);
 
   const colorOptions = ["#75B9BE", "#114B5F", "#EFC7C2", "#291720", "#820263"];
   const sizeOptions = [10, 8, 16, 50];
   const [inputList, setInputList] = useState([]);
-  const [toggleCooldown, setToggleCooldown] = useState(false);
 
-  const cooldownDuration = 1000; // 1 second cooldown
+  const [gestureHoldStart, setGestureHoldStart] = useState(null);
+  const [hasToggledThisHold, setHasToggledThisHold] = useState(false);
+
+  const HOLD_THRESHOLD = 2000;
 
   useEffect(() => {
     const canvas = drawCanvasRef.current;
@@ -81,11 +85,11 @@ function Canvas({
   //   setIsDrawing(false);
   // };
 
-  const clearCanvas = () => {
-    const ctx = drawCanvasRef.current.getContext("2d");
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, 800, 800);
-  };
+  // const clearCanvas = () => {
+  //   const ctx = drawCanvasRef.current.getContext("2d");
+  //   ctx.fillStyle = "white";
+  //   ctx.fillRect(0, 0, 800, 800);
+  // };
 
   const handleKeyDown = (e) => {
     if (e.key === "d") {
@@ -120,7 +124,7 @@ function Canvas({
     }
 
     const accuracy = total === 0 ? 0 : ((matched / total) * 100).toFixed(2);
-    alert(`Accuracy: ${accuracy}%`);
+    setAccuracy(accuracy);
   };
 
   const downloadCanvas = () => {
@@ -132,7 +136,7 @@ function Canvas({
   };
 
   useEffect(() => {
-    if (Array.isArray(inputList) && inputList[0] === 3 && contextRef.current) {
+    if (Array.isArray(inputList) && inputList[0] === 6 && contextRef.current) {
       window.location.reload();
     }
   }, [inputList]);
@@ -158,21 +162,15 @@ function Canvas({
   //     contextRef.current.strokeStyle = "white";
   //   }
   // }, [inputList]);
-
   useEffect(() => {
-    if (imageRef.current.complete) drawReferenceImage();
-    else imageRef.current.onload = drawReferenceImage;
-  }, []);
-
-  // toggle
-  useEffect(() => {
-    if (!contextRef.current) return;
-    if (!Array.isArray(inputList)) return;
+    if (!contextRef.current || !Array.isArray(inputList)) return;
 
     const [gesture, x, y] = inputList;
 
-    if (gesture === 6 || isDrawing) {
-      if (!isDrawing && gesture === 6) {
+    if (gesture === 3) {
+      areYouSure.current = []; // Reset delay buffer when gesture is active
+
+      if (!isDrawing) {
         contextRef.current.beginPath();
         contextRef.current.moveTo(x, y);
         setIsDrawing(true);
@@ -180,12 +178,38 @@ function Canvas({
         contextRef.current.lineTo(x, y);
         contextRef.current.stroke();
       }
-    }
-    if (isDrawing && gesture === 6) {
-      contextRef.current.closePath();
-      setIsDrawing(false);
+    } else {
+      // Add a "delay" confirmation to stop drawing
+      if (isDrawing) {
+        areYouSure.current.push(1);
+        if (areYouSure.current.length > SURENESS) {
+          areYouSure.current.shift();
+        }
+
+        if (
+          areYouSure.current.length === SURENESS &&
+          allIntegersSame(areYouSure.current)
+        ) {
+          contextRef.current.closePath();
+          setIsDrawing(false);
+          areYouSure.current = []; // reset after confirmed stop
+        }
+      }
     }
   }, [inputList]);
+
+  const allIntegersSame = (arr) => {
+    return arr.every((num) => num === arr[0]);
+  };
+
+  const checkIfSure = (sureness) => {
+    areYouSure.current.push(sureness);
+    if (areYouSure.current.length > SURENESS) {
+      areYouSure.current.shift();
+    }
+
+    console.log(areYouSure.current);
+  };
 
   //
   useEffect(() => {

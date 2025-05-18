@@ -58,17 +58,16 @@ const Instructions = () => {
             </h2>
             <ul className="list-disc list-inside space-y-2">
               <li>
-                <strong>Draw:</strong> Move your index finger
+                <strong>Hold to draw:</strong> Thumb to index
               </li>
               <li>
-                <strong>Change brush style:</strong> Thumb to index or middle
-                finger
+                <strong>Change brush thickness:</strong> Thumb to ring finger
               </li>
               <li>
-                <strong>Lift hand:</strong> Stops drawing
+                <strong>Change brush colour:</strong> Thumb to middle finger
               </li>
               <li>
-                <strong>Hand not detected:</strong> System pauses drawing
+                <strong>Clear canvas:</strong> Thumb to pinky
               </li>
             </ul>
           </section>

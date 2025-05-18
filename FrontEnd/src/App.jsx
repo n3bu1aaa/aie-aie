@@ -18,7 +18,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/level/:levelId" element={<Level />} />
             <Route path="/instructions" element={<Instructions />} />
-            <Route path="/intro/:levelId" element={<LevelIntro />} />
+            <Route path="/intro/:levelId/:accuracy" element={<LevelIntro />} />
           </Routes>
         </div>
       </Router>

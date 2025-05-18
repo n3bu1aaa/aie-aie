@@ -43,11 +43,12 @@ const Level = () => {
 
   const [colorIndex, setColorIndex] = useState(0);
   const [sizeIndex, setSizeIndex] = useState(0);
+  const [accuracy, setAccuracy] = useState(0);
 
   const handleDoneClick = () => {
     const nextLevel = level + 1;
     setLevel(nextLevel);
-    navigate(`/intro/${nextLevel}`);
+    navigate(`/intro/${nextLevel}/${accuracy}`);
   };
 
   const possibleImages = [
@@ -109,6 +110,7 @@ const Level = () => {
             setIsDrawing={setIsDrawing}
             nextLevel={level}
             flowerImage={possibleImages[level - 1]}
+            setAccuracy={setAccuracy}
             id="test_canvas"
             dpr={[1, 2]}
           />
