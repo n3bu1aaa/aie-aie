@@ -23,7 +23,7 @@ const fingerDraw = {
 };
 
 let recentPositions = []; // Array of {x, y}
-const MAX_POINTS = 7;
+const MAX_POINTS = 12; //7
 
 let prevPositions = []; // distances
 const CONFIRMATION_COUNT = 4;
@@ -77,7 +77,7 @@ const drawIndex = (indexLandmark, ctx) => {
   if (!smoothedPosition) {
     smoothedPosition = { ...average }; // Initialize on first frame
   } else {
-    const smoothingFactor = 0.15; // Smaller = smoother, slower to update
+    const smoothingFactor = 0.1; // Smaller = smoother, slower to update, p.15
     smoothedPosition.x = lerp(smoothedPosition.x, average.x, smoothingFactor);
     smoothedPosition.y = lerp(smoothedPosition.y, average.y, smoothingFactor);
   }
