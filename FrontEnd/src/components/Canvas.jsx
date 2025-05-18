@@ -25,6 +25,8 @@ function Canvas({
   const prevGesture = useRef(null);
   const areYouSure = useRef([]);
 
+
+
   const colorOptions = ["#75B9BE", "#114B5F", "#EFC7C2", "#291720", "#820263"];
   const sizeOptions = [10, 8, 16, 50];
   const [inputList, setInputList] = useState([]);
@@ -66,6 +68,8 @@ function Canvas({
     overlayCtx.drawImage(img, 0, 0, 800, 800);
     overlayCtx.globalAlpha = 1.0;
   };
+
+  
 
   // const startDraw = (e) => {
   //   if (!Array.isArray(inputList) || inputList[0] === 2) return;
@@ -125,6 +129,7 @@ function Canvas({
 
     const accuracy = total === 0 ? 0 : ((matched / total) * 100).toFixed(2);
     setAccuracy(accuracy);
+    alert(`Your accuracy was: ${accuracy}%`);
   };
 
   const downloadCanvas = () => {
@@ -136,7 +141,7 @@ function Canvas({
   };
 
   useEffect(() => {
-    if (Array.isArray(inputList) && inputList[0] === 6 && contextRef.current) {
+    if (Array.isArray(inputList) && inputList[0] === 3 && contextRef.current) {
       window.location.reload();
     }
   }, [inputList]);
@@ -162,15 +167,21 @@ function Canvas({
   //     contextRef.current.strokeStyle = "white";
   //   }
   // }, [inputList]);
+
   useEffect(() => {
-    if (!contextRef.current || !Array.isArray(inputList)) return;
+    if (imageRef.current.complete) drawReferenceImage();
+    else imageRef.current.onload = drawReferenceImage;
+  }, []);
 
+  // toggle
+  useEffect(() => {
+    if (!contextRef.current) return;
+    if (!Array.isArray(inputList)) return;
+  
     const [gesture, x, y] = inputList;
-
-    if (gesture === 3) {
-      areYouSure.current = []; // Reset delay buffer when gesture is active
-
-      if (!isDrawing) {
+  
+    if (gesture === 6 || isDrawing) {
+      if (!isDrawing && gesture === 6) {
         contextRef.current.beginPath();
         contextRef.current.moveTo(x, y);
         setIsDrawing(true);
@@ -178,39 +189,12 @@ function Canvas({
         contextRef.current.lineTo(x, y);
         contextRef.current.stroke();
       }
-    } else {
-      // Add a "delay" confirmation to stop drawing
-      if (isDrawing) {
-        areYouSure.current.push(1);
-        if (areYouSure.current.length > SURENESS) {
-          areYouSure.current.shift();
-        }
-
-        if (
-          areYouSure.current.length === SURENESS &&
-          allIntegersSame(areYouSure.current)
-        ) {
-          contextRef.current.closePath();
-          setIsDrawing(false);
-          areYouSure.current = []; // reset after confirmed stop
-        }
-      }
+    } if (isDrawing && gesture === 6) {
+      contextRef.current.closePath();
+      setIsDrawing(false);
     }
-  }, [inputList]);
-
-  const allIntegersSame = (arr) => {
-    return arr.every((num) => num === arr[0]);
-  };
-
-  const checkIfSure = (sureness) => {
-    areYouSure.current.push(sureness);
-    if (areYouSure.current.length > SURENESS) {
-      areYouSure.current.shift();
-    }
-
-    console.log(areYouSure.current);
-  };
-
+  }, [inputList]); 
+  
   //
   useEffect(() => {
     if (Array.isArray(inputList) && inputList[0] === 5 && contextRef.current) {
@@ -265,10 +249,13 @@ function Canvas({
         height="800"
         style={{
           position: "absolute",
-          top: 0,
+          top: 200,
           left: 0,
           zIndex: 1,
           pointerEvents: "none",
+          height: 400,
+          width: 800,
+          border: "none",
         }}
       />
 
@@ -287,14 +274,34 @@ function Canvas({
         ref={hiddenCanvasRef}
         width="800"
         height="800"
-        style={{ display: "none" }}
+        style={{
+          position: "absolute",
+          top: 200,
+          left: 0,
+          zIndex: 1,
+          pointerEvents: "none",
+          height: 400,
+          width: 800,
+          border: "none",
+          display: "none",
+        }}
       />
 
       <img
         ref={imageRef}
         src={flowerImage}
         alt="Reference"
-        style={{ display: "none" }}
+        style={{
+          position: "absolute",
+          top: 200,
+          left: 0,
+          zIndex: 1,
+          pointerEvents: "none",
+          height: 400,
+          width: 800,
+          border: "none",
+          display: "none",
+        }}
       />
 
       <div

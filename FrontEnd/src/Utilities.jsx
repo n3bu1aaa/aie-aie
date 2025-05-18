@@ -7,6 +7,7 @@
 
 let smoothedPosition = null;
 
+
 const fingerTips = {
   Thumb: 4,
   indexFinger: 8,
@@ -26,18 +27,20 @@ let recentPositions = []; // Array of {x, y}
 const MAX_POINTS = 7;
 
 let prevPositions = []; // distances
-const CONFIRMATION_COUNT = 10;
+const CONFIRMATION_COUNT = 4;
 
 export const drawHand = (predictions, ctx) => {
+
   if (predictions.length === 0) return null;
 
   let currentGesture = null;
   let indexCoordinates = null;
 
+
   predictions.forEach((prediction) => {
     const landmarks = prediction.landmarks;
     const coords = drawIndex(landmarks[8], ctx);
-    if (coords) indexCoordinates = coords;
+    if (coords) indexCoordinates = coords; 
 
     drawLandmarks(ctx, landmarks);
 
@@ -61,9 +64,9 @@ const drawLandmarks = (ctx, landmarks) => {
   }
 };
 
-const lerp = (a, b, t) => {
-  return a + (b - a) * t;
-};
+  const lerp = (a, b, t) => {
+    return a + (b - a) * t;
+  }
 
 const drawIndex = (indexLandmark, ctx) => {
   recentPositions.push({ x: indexLandmark[0], y: indexLandmark[1] });
@@ -77,7 +80,7 @@ const drawIndex = (indexLandmark, ctx) => {
   if (!smoothedPosition) {
     smoothedPosition = { ...average }; // Initialize on first frame
   } else {
-    const smoothingFactor = 0.25; // Smaller = smoother, slower to update
+    const smoothingFactor = 0.15; // Smaller = smoother, slower to update
     smoothedPosition.x = lerp(smoothedPosition.x, average.x, smoothingFactor);
     smoothedPosition.y = lerp(smoothedPosition.y, average.y, smoothingFactor);
   }
@@ -90,14 +93,14 @@ const drawIndex = (indexLandmark, ctx) => {
   ctx.fillStyle = "green";
   ctx.fill();
 
-  // ⬇️ Move the fake HTML cursor
+   // ⬇️ Move the fake HTML cursor
   const htmlCursor = document.getElementById("finger-cursor");
-  const canvas = document.querySelector("canvas"); // Or drawCanvasRef.current if you're in React
+const canvas = document.querySelector("canvas"); // Or drawCanvasRef.current if you're in React
 
-  if (htmlCursor && canvas) {
-    htmlCursor.style.left = `${screenX}px`;
-    htmlCursor.style.top = `${screenY}px`;
-  }
+if (htmlCursor && canvas) {
+  htmlCursor.style.left = `${screenX}px`;
+  htmlCursor.style.top = `${screenY}px`;
+}
 
   return [screenX, screenY];
 };
@@ -111,7 +114,7 @@ const detectGesture = (landmarks) => {
     landmarks[fingerTips.pinky],
   ];
 
-  const together = areFingersTogether(selectedTips, 250, 5000);
+  const together = areFingersTogether(selectedTips, 250, 50000);
 
   if (together) {
     const confirmed = confirmPosition(2);
@@ -137,7 +140,7 @@ const detectGesture = (landmarks) => {
         }[finger];
 
         const confirmed = confirmPosition(gestureCode);
-        if (confirmed) return gestureCode;
+        if (confirmed !== null) return gestureCode;
       }
     } else {
       const confirmed = confirmPosition(1);
@@ -195,14 +198,15 @@ const findClosestFinger = (distances) => {
 const calculateDistance = (x1, y1, x2, y2) => {
   const dx = x2 - x1;
   const dy = y2 - y1;
-  return Math.sqrt(dx * dx + dy * dy);
+  return Math.sqrt((dx * dx) + (dy * dy));
 };
 
 const areFingersTogether = (tips, threshold, distFromIndex) => {
   // Check all tips are within the given threshold of each other
+
   for (let tip of tips) {
-    if (!Array.isArray(tip) || tip.length < 2) return false;
-  }
+  if (!Array.isArray(tip) || tip.length < 2) return false;
+}
 
   for (let i = 0; i < tips.length; i++) {
     for (let j = i + 1; j < tips.length; j++) {
@@ -249,9 +253,9 @@ function confirmPosition(newPos) {
 
   // Check if all positions are close to each other
   if (prevPositions.length === CONFIRMATION_COUNT) {
-    const allSame = allIntegersSame(prevPositions);
+    const allSame = () => allIntegersSame(prevPositions);
 
-    if (allSame) {
+    if (allSame()) {
       // Confirmed position
       return prevPositions[0];
     }

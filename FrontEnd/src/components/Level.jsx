@@ -49,6 +49,7 @@ const Level = () => {
     const nextLevel = level + 1;
     setLevel(nextLevel);
     navigate(`/intro/${nextLevel}/${accuracy}`);
+    // alert(`Your accuracy was: ${accuracy}`)
   };
 
   const possibleImages = [
@@ -116,6 +117,7 @@ const Level = () => {
           />
         </div>
         <div>
+          <p className="font-bold">Press D to see your accuracy!</p>
           {sizeOptions.map((size, index) => (
             <div
               key={index}

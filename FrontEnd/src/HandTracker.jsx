@@ -5,7 +5,7 @@ import * as handpose from "@tensorflow-models/handpose";
 import Webcam from "react-webcam";
 import { drawHand } from "./Utilities";
 
-const HandTracker = ({ setInputList, setPosition }) => {
+const HandTracker = ({ setInputList }) => {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -52,9 +52,6 @@ const HandTracker = ({ setInputList, setPosition }) => {
       if (typeof setInputList === "function") {
         setInputList(inputList);
       }
-      if (typeof setPosition === "function") {
-        setPosition();
-      }
     }
   };
 
@@ -66,8 +63,8 @@ const HandTracker = ({ setInputList, setPosition }) => {
             position: "fixed",
             bottom: 0,
             left: 0,
-            width: 200,
-            height: 200,
+            width: 160,
+            height: 120,
             zIndex: 20,
           }}
         >
@@ -83,15 +80,15 @@ const HandTracker = ({ setInputList, setPosition }) => {
               left: 0,
             }}
             videoConstraints={{
-              width: 800,
-              height: 800,
+              width: 640,
+              height: 480,
               facingMode: "user",
             }}
           />
           <canvas
             ref={canvasRef}
-            width={800}
-            height={800}
+            width={640}
+            height={480}
             style={{
               position: "absolute",
               top: 0,
@@ -105,10 +102,9 @@ const HandTracker = ({ setInputList, setPosition }) => {
           />
         </div>
       </header>
-
       {/* <div
-      id="finger-cursor"
-      className="fixed w-5 h-5 bg-green-500 rounded-full pointer-events-none z-50"
+    id="finger-cursor"
+    className="fixed w-5 h-5 bg-green-500 rounded-full pointer-events-none z-50" 
     /> */}
     </div>
   );
