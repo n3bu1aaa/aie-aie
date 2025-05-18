@@ -1,58 +1,77 @@
 import React from "react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import AnimatedContent from "./animations/AnimatedContent";
 import Canvas from "./Canvas.jsx";
-import Flower_1 from "../assets/Flower_images/Flower_1.svg"
+import Flower_1 from "../assets/Flower_images/Flower_1.svg";
+import { useState } from "react";
 
 const Level = () => {
-  const [level, setLevel] = useState(1);
-  const navigate = useNavigate();
+  const colorOptions = ["#75B9BE", "#114B5F", "#EFC7C2", "#291720", "#820263"];
+  const sizeOptions = [2, 8, 16, 50];
+
+  const [colorIndex, setColorIndex] = useState(0);
+  const [sizeIndex, setSizeIndex] = useState(0);
   return (
     <div>
-      <AnimatedContent
-        distance={150}
-        direction="vertical"
-        reverse={false}
-        config={{ tension: 80, friction: 20 }}
-        initialOpacity={0.2}
-        animateOpacity
-        scale={1.1}
-        threshold={0.2}
-      >
-        <p className="font-rubik font-extrabold text-center text-9xl text-black text-transparent bg-gradient-to-r bg-clip-text from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%">
-          LEVEL {level}
-        </p>
-      </AnimatedContent>
-      <AnimatedContent
-        distance={150}
-        direction="vertical"
-        delay={600}
-        reverse={false}
-        config={{ tension: 80, friction: 20 }}
-        initialOpacity={0}
-        animateOpacity
-        scale={1.1}
-        threshold={0.2}
-      >
-        <button
-          onClick={() => {
-            navigate("/win");
-            setLevel(level + 1);
-          }}
-          className="group w-auto bg-emerald-500 text-[#241909] font-bold py-6 px-32 mx-25 mb-8 rounded-lg shadow-2xl shadow-lg transition-all duration-300 hover:bg-emerald-600 hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] hover:scale-105"
-        >
-          Press to win free robux!
-        </button>
-      </AnimatedContent>
-      <div className="flex items-center justify-center">
-        <Canvas id="test_canvas" dpr={[1, 2]}></Canvas>
+      <div className="flex items-center justify-center gap-8">
+        <div>
+          {colorOptions.map((color, index) => (
+            <div
+              key={index}
+              className={`border-2 rounded-lg h-[120px] w-[200px] my-10 transition-transform duration-300 cursor-pointer ${
+                index === colorIndex
+                  ? "ring-4 ring-yellow-400 scale-110 shadow-xl"
+                  : ""
+              }`}
+              style={{ backgroundColor: color }}
+              onClick={() => setColorIndex(index)}
+            />
+          ))}
+        </div>
 
-
-
+        <div className="w-[800px] h-[800px]">
+          <Canvas
+            colorIndex={colorIndex}
+            sizeIndex={sizeIndex}
+            setColorIndex={setColorIndex}
+            setSizeIndex={setSizeIndex}
+            id="test_canvas"
+            dpr={[1, 2]}
+          />
+        </div>
+        <div>
+          {sizeOptions.map((size, index) => (
+            <div
+              key={index}
+              className={`border-2 rounded-lg h-[120px] w-[200px] my-10 flex flex-col items-center justify-center cursor-pointer transition-transform duration-300 ${
+                index === sizeIndex
+                  ? "ring-4 ring-blue-400 scale-110 shadow-xl"
+                  : ""
+              }`}
+              onClick={() => setSizeIndex(index)}
+            >
+              <div
+                className="bg-black rounded-full"
+                style={{
+                  width: `${
+                    (-31 / 17136) * size * size * size +
+                    (913 / 8568) * size * size -
+                    (529 / 2142) * size +
+                    8656 / 1071
+                  }px`,
+                  height: `${
+                    (-31 / 17136) * size * size * size +
+                    (913 / 8568) * size * size -
+                    (529 / 2142) * size +
+                    8656 / 1071
+                  }px`,
+                }}
+              ></div>
+              <p className="mt-8">Size {size}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <img src= {Flower_1} alt="" id="Flower_img"/>
+      <img src={Flower_1} alt="" id="Flower_img" />
     </div>
   );
 };

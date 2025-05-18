@@ -1,20 +1,20 @@
 import { useRef, useEffect, useState } from "react";
 import "../App.css";
 import Flower from "../assets/Flower_images/Flower_1.svg";
+import HandTracker from "../HandTracker";
 
-function Canvas() {
-  const drawCanvasRef = useRef(null);         // Madaya's draw here
-  const overlayCanvasRef = useRef(null);      
-  const hiddenCanvasRef = useRef(null);       
+function Canvas({ colorIndex, sizeIndex, setColorIndex, setSizeIndex }) {
+  const drawCanvasRef = useRef(null); // Madaya's draw here
+  const overlayCanvasRef = useRef(null);
+  const hiddenCanvasRef = useRef(null);
   const imageRef = useRef(null);
   const contextRef = useRef(null);
 
-  const colorOptions = ["black", "blue", "green", "yellow", "orange"];
-  const sizeOptions = [2, 8, 16, 200];
-
-  const [colorIndex, setColorIndex] = useState(0);
-  const [sizeIndex, setSizeIndex] = useState(0);
+  const colorOptions = ["#75B9BE", "#114B5F", "#EFC7C2", "#291720", "#820263"];
+  const sizeOptions = [2, 8, 16, 50];
   const [isDrawing, setIsDrawing] = useState(false);
+  const [inputList, setInputList] = useState([]);
+
   useEffect(() => {
     const canvas = drawCanvasRef.current;
     canvas.width = 800;
@@ -27,16 +27,20 @@ function Canvas() {
     contextRef.current = ctx;
   }, []);
 
-  
+  useEffect(() => {
+    if (contextRef.current) {
+      contextRef.current.lineWidth = sizeOptions[sizeIndex];
+      contextRef.current.strokeStyle = colorOptions[colorIndex];
+    }
+  }, [colorIndex, sizeIndex]);
+
   const drawReferenceImage = () => {
     const img = imageRef.current;
 
-   
     const hiddenCtx = hiddenCanvasRef.current.getContext("2d");
     hiddenCtx.clearRect(0, 0, 800, 800);
     hiddenCtx.drawImage(img, 0, 0, 800, 800);
 
-    
     const overlayCtx = overlayCanvasRef.current.getContext("2d");
     overlayCtx.clearRect(0, 0, 800, 800);
     overlayCtx.globalAlpha = 0.2;
@@ -44,20 +48,21 @@ function Canvas() {
     overlayCtx.globalAlpha = 1.0;
   };
 
-  
   const startDraw = (e) => {
+    if (!Array.isArray(inputList) || inputList[0] === 2) return;
     contextRef.current.beginPath();
-    contextRef.current.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    contextRef.current.moveTo(inputList[1], inputList[2]);
     setIsDrawing(true);
   };
 
   const draw = (e) => {
-    if (!isDrawing) return;
-    contextRef.current.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    if (!isDrawing || inputList[0] === 2) return;
+    contextRef.current.lineTo(inputList[1], inputList[2]);
     contextRef.current.stroke();
   };
 
   const endDraw = () => {
+    if (inputList[0] === 2) return;
     contextRef.current.closePath();
     setIsDrawing(false);
   };
@@ -80,7 +85,7 @@ function Canvas() {
 
     for (let i = 0; i < refData.length; i += 4) {
       const [r, g, b, a] = refData.slice(i, i + 4);
-      if (a < 50 || (r + g + b) > 700) continue; 
+      if (a < 50 || r + g + b > 700) continue;
 
       total++;
 
@@ -93,37 +98,71 @@ function Canvas() {
     alert(`Accuracy: ${accuracy}%`);
   };
 
-  
-  const handleKeyDown = (e) => {
-    if (e.key === "c") clearCanvas();
-    else if (e.key === "o") {
-      const nextColor = (colorIndex + 1) % colorOptions.length;
-      setColorIndex(nextColor);
-      contextRef.current.strokeStyle = colorOptions[nextColor];
-    } else if (e.key === "s") {
-      const nextSize = (sizeIndex + 1) % sizeOptions.length;
-      setSizeIndex(nextSize);
-      contextRef.current.lineWidth = sizeOptions[nextSize];
-    } else if (e.key === "e") {
-      contextRef.current.strokeStyle = "white";
-    } else if (e.key === "d") {
-      calculateAccuracy();
-    }
+  const downloadCanvas = () => {
+    const canvas = drawCanvasRef.current;
+    const link = document.createElement("a");
+    link.download = "my-drawing.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
   };
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  });
+    if (Array.isArray(inputList) && inputList[0] === 6 && contextRef.current) {
+      window.location.reload();
+    }
+  }, [inputList]);
+
+  useEffect(() => {
+    if (Array.isArray(inputList) && inputList[0] === 5 && contextRef.current) {
+      const nextColor = (colorIndex + 1) % colorOptions.length;
+      setColorIndex(nextColor);
+      contextRef.current.strokeStyle = colorOptions[nextColor];
+    }
+  }, [inputList]);
+
+  useEffect(() => {
+    if (Array.isArray(inputList) && inputList[0] === 4 && contextRef.current) {
+      const nextSize = (sizeIndex + 1) % sizeOptions.length;
+      setSizeIndex(nextSize);
+      contextRef.current.lineWidth = sizeOptions[nextSize];
+    }
+  }, [inputList]);
+
+  useEffect(() => {
+    if (Array.isArray(inputList) && inputList[0] === 3 && contextRef.current) {
+      contextRef.current.strokeStyle = "white";
+    }
+  }, [inputList]);
 
   useEffect(() => {
     if (imageRef.current.complete) drawReferenceImage();
     else imageRef.current.onload = drawReferenceImage;
   }, []);
 
+  useEffect(() => {
+    if (!contextRef.current) return;
+    if (!Array.isArray(inputList)) return;
+
+    const [gesture, x, y] = inputList;
+
+    if (gesture === 2) {
+      if (!isDrawing) {
+        contextRef.current.beginPath();
+        contextRef.current.moveTo(x, y);
+        setIsDrawing(true);
+      } else {
+        contextRef.current.lineTo(x, y);
+        contextRef.current.stroke();
+      }
+    } else if (isDrawing) {
+      contextRef.current.closePath();
+      setIsDrawing(false);
+    }
+  }, [inputList]);
+
   return (
     <div style={{ position: "relative", width: 800, height: 800 }}>
-     
+      <HandTracker setInputList={setInputList} />
       <canvas
         ref={overlayCanvasRef}
         width="800"
@@ -133,27 +172,21 @@ function Canvas() {
           top: 0,
           left: 0,
           zIndex: 1,
-          pointerEvents: "none"
+          pointerEvents: "none",
         }}
       />
 
-      
       <canvas
         ref={drawCanvasRef}
-        onMouseDown={startDraw}
-        onMouseMove={draw}
-        onMouseUp={endDraw}
-        onMouseLeave={endDraw}
         style={{
           position: "absolute",
           top: 0,
           left: 0,
           zIndex: 2,
-          border: "1px solid black"
+          border: "1px solid black",
         }}
       />
 
-      
       <canvas
         ref={hiddenCanvasRef}
         width="800"
@@ -161,13 +194,42 @@ function Canvas() {
         style={{ display: "none" }}
       />
 
-      
       <img
         ref={imageRef}
         src={Flower}
         alt="Reference"
         style={{ display: "none" }}
       />
+
+      <div
+        id="finger-cursor"
+        style={{
+          position: "absolute",
+          width: "20px",
+          height: "20px",
+          backgroundColor: "green",
+          borderRadius: "50%",
+          pointerEvents: "none",
+          zIndex: 50,
+          top:
+            Array.isArray(inputList) && inputList.length > 2
+              ? inputList[2] - 10
+              : -100,
+          left:
+            Array.isArray(inputList) && inputList.length > 2
+              ? inputList[1] - 10
+              : -100,
+          transition: "top 0.05s, left 0.05s",
+        }}
+      />
+
+      <button
+        onClick={downloadCanvas}
+        style={{ marginTop: "820px" }}
+        className="DownloadButton"
+      >
+        Download Drawing
+      </button>
     </div>
   );
 }

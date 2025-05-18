@@ -5,7 +5,7 @@ import * as handpose from "@tensorflow-models/handpose";
 import Webcam from "react-webcam";
 import { drawHand } from "./Utilities";
 
-const HandTracker = ({ setInputList }) => {
+const HandTracker = ({ setInputList, setPosition }) => {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -52,62 +52,66 @@ const HandTracker = ({ setInputList }) => {
       if (typeof setInputList === "function") {
         setInputList(inputList);
       }
+      if (typeof setPosition === "function") {
+        setPosition();
+      }
     }
   };
 
   return (
     <div className="App">
-    <header className="App-header">
-      <div
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          width: 160,
-          height: 120,
-          zIndex: 20,
-        }}
-      >
-        <Webcam
-          ref={webcamRef}
-          className="rounded-xl"
+      <header className="App-header">
+        <div
           style={{
-            width: "100%",
-            height: "100%",
-            transform: "scaleX(-1)",
-            position: "absolute",
-            top: 0,
+            position: "fixed",
+            bottom: 0,
             left: 0,
+            width: 200,
+            height: 200,
+            zIndex: 20,
           }}
-          videoConstraints={{
-            width: 640,
-            height: 480,
-            facingMode: "user",
-          }}
-        />
-        <canvas
-          ref={canvasRef}
-          width={640}
-          height={480}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            pointerEvents: "none",
-            width: "100%",
-            height: "100%",
-            zIndex: 10,
-          }}
-        />
-      </div>
-    </header>
+        >
+          <Webcam
+            ref={webcamRef}
+            className="rounded-xl"
+            style={{
+              width: "100%",
+              height: "100%",
+              transform: "scaleX(-1)",
+              position: "absolute",
+              top: 0,
+              left: 0,
+            }}
+            videoConstraints={{
+              width: 800,
+              height: 800,
+              facingMode: "user",
+            }}
+          />
+          <canvas
+            ref={canvasRef}
+            width={800}
+            height={800}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              pointerEvents: "none",
+              width: "100%",
+              height: "100%",
+              zIndex: 10,
+              border: "none",
+            }}
+          />
+        </div>
+      </header>
 
-    <div
+      {/* <div
       id="finger-cursor"
       className="fixed w-5 h-5 bg-green-500 rounded-full pointer-events-none z-50"
-    />
-  </div>
-);
+    /> */}
+    </div>
+  );
 };
 
 export default HandTracker;

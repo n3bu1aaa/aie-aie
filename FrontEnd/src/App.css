@@ -40,3 +40,21 @@ canvas {
 #Flower_img {
   display: none;
 }
+
+.DownloadButton {
+  border-style: groove;
+  border-width: 2px;
+  border-radius: 5px;
+  color: grey;
+  background-color: rgb(211, 211, 211);
+  border-color: rgb(143, 137, 137);
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.DownloadButton:hover {
+  box-shadow: 0 0 20px rgba(173, 216, 230, 0.6);
+  background-color: #f0faff;
+}
