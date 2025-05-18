@@ -1,19 +1,34 @@
 import { useRef, useEffect, useState } from "react";
 import "../App.css";
-import Flower from "../assets/Flower_images/Flower_1.svg";
 import HandTracker from "../HandTracker";
 
-function Canvas({ colorIndex, sizeIndex, setColorIndex, setSizeIndex }) {
+let lastX = 0;
+let lastY = 0;
+let noot = () => flip();
+
+function Canvas({
+  colorIndex,
+  sizeIndex,
+  setColorIndex,
+  setSizeIndex,
+  isDrawing,
+  setIsDrawing,
+  nextLevel,
+  flowerImage,
+}) {
   const drawCanvasRef = useRef(null); // Madaya's draw here
   const overlayCanvasRef = useRef(null);
   const hiddenCanvasRef = useRef(null);
   const imageRef = useRef(null);
   const contextRef = useRef(null);
+  const prevGesture = useRef(null);
 
   const colorOptions = ["#75B9BE", "#114B5F", "#EFC7C2", "#291720", "#820263"];
-  const sizeOptions = [2, 8, 16, 50];
-  const [isDrawing, setIsDrawing] = useState(false);
+  const sizeOptions = [10, 8, 16, 50];
   const [inputList, setInputList] = useState([]);
+  const [toggleCooldown, setToggleCooldown] = useState(false);
+
+  const cooldownDuration = 1000; // 1 second cooldown
 
   useEffect(() => {
     const canvas = drawCanvasRef.current;
@@ -48,30 +63,40 @@ function Canvas({ colorIndex, sizeIndex, setColorIndex, setSizeIndex }) {
     overlayCtx.globalAlpha = 1.0;
   };
 
-  const startDraw = (e) => {
-    if (!Array.isArray(inputList) || inputList[0] === 2) return;
-    contextRef.current.beginPath();
-    contextRef.current.moveTo(inputList[1], inputList[2]);
-    setIsDrawing(true);
-  };
+  // const startDraw = (e) => {
+  //   if (!Array.isArray(inputList) || inputList[0] === 2) return;
+  //   contextRef.current.beginPath();
+  //   contextRef.current.moveTo(inputList[1], inputList[2]);
+  //   setIsDrawing(true);
+  // };
 
-  const draw = (e) => {
-    if (!isDrawing || inputList[0] === 2) return;
-    contextRef.current.lineTo(inputList[1], inputList[2]);
-    contextRef.current.stroke();
-  };
+  // const draw = (e) => {
+  //   contextRef.current.lineTo(inputList[1], inputList[2]);
+  //   contextRef.current.stroke();
+  // };
 
-  const endDraw = () => {
-    if (inputList[0] === 2) return;
-    contextRef.current.closePath();
-    setIsDrawing(false);
-  };
+  // const endDraw = () => {
+  //   if (inputList[0] === 2) return;
+  //   contextRef.current.closePath();
+  //   setIsDrawing(false);
+  // };
 
   const clearCanvas = () => {
     const ctx = drawCanvasRef.current.getContext("2d");
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, 800, 800);
   };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "d") {
+      calculateAccuracy();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
 
   const calculateAccuracy = () => {
     const userCtx = drawCanvasRef.current.getContext("2d");
@@ -107,7 +132,7 @@ function Canvas({ colorIndex, sizeIndex, setColorIndex, setSizeIndex }) {
   };
 
   useEffect(() => {
-    if (Array.isArray(inputList) && inputList[0] === 6 && contextRef.current) {
+    if (Array.isArray(inputList) && inputList[0] === 3 && contextRef.current) {
       window.location.reload();
     }
   }, [inputList]);
@@ -128,25 +153,26 @@ function Canvas({ colorIndex, sizeIndex, setColorIndex, setSizeIndex }) {
     }
   }, [inputList]);
 
-  useEffect(() => {
-    if (Array.isArray(inputList) && inputList[0] === 3 && contextRef.current) {
-      contextRef.current.strokeStyle = "white";
-    }
-  }, [inputList]);
+  // useEffect(() => {
+  //   if (Array.isArray(inputList) && inputList[0] === 3 && contextRef.current) {
+  //     contextRef.current.strokeStyle = "white";
+  //   }
+  // }, [inputList]);
 
   useEffect(() => {
     if (imageRef.current.complete) drawReferenceImage();
     else imageRef.current.onload = drawReferenceImage;
   }, []);
 
+  // toggle
   useEffect(() => {
     if (!contextRef.current) return;
     if (!Array.isArray(inputList)) return;
 
     const [gesture, x, y] = inputList;
 
-    if (gesture === 2) {
-      if (!isDrawing) {
+    if (gesture === 6 || isDrawing) {
+      if (!isDrawing && gesture === 6) {
         contextRef.current.beginPath();
         contextRef.current.moveTo(x, y);
         setIsDrawing(true);
@@ -154,11 +180,57 @@ function Canvas({ colorIndex, sizeIndex, setColorIndex, setSizeIndex }) {
         contextRef.current.lineTo(x, y);
         contextRef.current.stroke();
       }
-    } else if (isDrawing) {
+    }
+    if (isDrawing && gesture === 6) {
       contextRef.current.closePath();
       setIsDrawing(false);
     }
   }, [inputList]);
+
+  //
+  useEffect(() => {
+    if (Array.isArray(inputList) && inputList[0] === 5 && contextRef.current) {
+      console.log("in function");
+      const currGesture = inputList[0];
+
+      if (prevGesture.current !== currGesture) {
+        console.log("next");
+        const nextColor = (colorIndex + 1) % colorOptions.length;
+
+        contextRef.current.strokeStyle = colorOptions[nextColor];
+        setColorIndex(nextColor);
+
+        prevGesture.current = currGesture;
+      }
+    } else {
+      // Reset prevGesture when gesture changes to something else
+      prevGesture.current = null;
+    }
+  }, [inputList]);
+
+  useEffect(() => {
+    if (Array.isArray(inputList) && inputList[0] === 4 && contextRef.current) {
+      const currGesture = inputList[0];
+
+      if (prevGesture.current !== currGesture) {
+        const nextSize = (sizeIndex + 1) % sizeOptions.length;
+        setSizeIndex(nextSize);
+        contextRef.current.lineWidth = sizeOptions[nextSize];
+
+        prevGesture.current = currGesture;
+      }
+    } else {
+      // Reset prevGesture when gesture changes to something else
+      prevGesture.current = null;
+    }
+  }, [inputList]);
+  //
+
+  // for cursor
+  useEffect(() => {
+    if (inputList?.[1]) lastX = inputList[1];
+    if (inputList?.[2]) lastY = inputList[2];
+  });
 
   return (
     <div style={{ position: "relative", width: 800, height: 800 }}>
@@ -196,7 +268,7 @@ function Canvas({ colorIndex, sizeIndex, setColorIndex, setSizeIndex }) {
 
       <img
         ref={imageRef}
-        src={Flower}
+        src={flowerImage}
         alt="Reference"
         style={{ display: "none" }}
       />
@@ -211,14 +283,8 @@ function Canvas({ colorIndex, sizeIndex, setColorIndex, setSizeIndex }) {
           borderRadius: "50%",
           pointerEvents: "none",
           zIndex: 50,
-          top:
-            Array.isArray(inputList) && inputList.length > 2
-              ? inputList[2] - 10
-              : -100,
-          left:
-            Array.isArray(inputList) && inputList.length > 2
-              ? inputList[1] - 10
-              : -100,
+          top: `${lastY}px`,
+          left: `${lastX}px`,
           transition: "top 0.05s, left 0.05s",
         }}
       />

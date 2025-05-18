@@ -1,14 +1,62 @@
 import React from "react";
 import Canvas from "./Canvas.jsx";
+import { useParams, useNavigate } from "react-router-dom"; // ✅ Import useParams
 import Flower_1 from "../assets/Flower_images/Flower_1.svg";
-import { useState } from "react";
+import Flower_2 from "../assets/Flower_images/Flower_2.svg";
+import Flower_3 from "../assets/Flower_images/Flower_3.svg";
+import Flower_4 from "../assets/Flower_images/Flower_4.svg";
+import Flower_5 from "../assets/Flower_images/Flower_5.svg";
+import Flower_6 from "../assets/Flower_images/Flower_6.svg";
+import Flower_7 from "../assets/Flower_images/Flower_7.svg";
+import Flower_8 from "../assets/Flower_images/Flower_8.svg";
+import Flower_9 from "../assets/Flower_images/Flower_9.svg";
+import Flower_10 from "../assets/Flower_images/Flower_10.svg";
+import Flower_12 from "../assets/Flower_images/Flower_12.svg";
+import Flower_13 from "../assets/Flower_images/Flower_13.svg";
+import { useState, useEffect } from "react";
+
+let prevColor = 0;
 
 const Level = () => {
+  const navigate = useNavigate();
+  const { levelId } = useParams(); // ✅ Get levelId from the URL
+  const initialLevel = parseInt(levelId || "0", 10); // fallback to 0 if undefined
+
+  const [isDrawing, setIsDrawing] = useState(false);
+
+  const [level, setLevel] = useState(initialLevel); // ✅ Declare level state
+
   const colorOptions = ["#75B9BE", "#114B5F", "#EFC7C2", "#291720", "#820263"];
   const sizeOptions = [2, 8, 16, 50];
 
   const [colorIndex, setColorIndex] = useState(0);
   const [sizeIndex, setSizeIndex] = useState(0);
+
+  const handleDoneClick = () => {
+    const nextLevel = (level + 1) % flowerImages.length;
+    setLevel(nextLevel);
+    navigate(`/intro/${nextLevel}`);
+  };
+
+  const flowerImages = [
+    Flower_1,
+    Flower_2,
+    Flower_3,
+    Flower_4,
+    Flower_5,
+    Flower_6,
+    Flower_7,
+    Flower_8,
+    Flower_9,
+    Flower_10,
+    Flower_12,
+    Flower_13,
+  ];
+
+  useEffect(() => {
+    setLevel(parseInt(levelId || "0", 10));
+  }, [levelId]);
+
   return (
     <div>
       <div className="flex items-center justify-center gap-8">
@@ -33,6 +81,10 @@ const Level = () => {
             sizeIndex={sizeIndex}
             setColorIndex={setColorIndex}
             setSizeIndex={setSizeIndex}
+            isDrawing={isDrawing}
+            setIsDrawing={setIsDrawing}
+            nextLevel={level}
+            flowerImage={flowerImages[level - 1]}
             id="test_canvas"
             dpr={[1, 2]}
           />
@@ -69,9 +121,10 @@ const Level = () => {
             </div>
           ))}
         </div>
+        <button onClick={handleDoneClick} className="DownloadButton">
+          Done?
+        </button>
       </div>
-
-      <img src={Flower_1} alt="" id="Flower_img" />
     </div>
   );
 };

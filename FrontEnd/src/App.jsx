@@ -16,9 +16,9 @@ function App() {
           <Routes>
             <Route path="/win" element={<Win />} />
             <Route path="/" element={<Home />} />
-            <Route path="/level" element={<Level />} />
+            <Route path="/level/:levelId" element={<Level />} />
             <Route path="/instructions" element={<Instructions />} />
-            <Route path="/levelintro" element={<LevelIntro />} />
+            <Route path="/intro/:levelId" element={<LevelIntro />} />
           </Routes>
         </div>
       </Router>
