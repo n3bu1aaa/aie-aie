@@ -22,7 +22,9 @@ const LevelIntro = () => {
           <p className="font-rubik font-extrabold text-center text-9xl text-black text-transparent bg-gradient-to-r bg-clip-text from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%">
             LEVEL {levelId}
           </p>
+          <p>{accuracy == -1 ? "" : `Accuracy: ${accuracy}%`}</p>
         </AnimatedContent>
+
 
         <AnimatedContent
           distance={150}

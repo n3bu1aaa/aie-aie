@@ -17,7 +17,7 @@ const Home = () => {
           scale={1.1}
           threshold={0.2}
         >
-          <p className="font-rubik font-extrabold text-center text-9xl text-black text-transparent bg-gradient-to-r bg-clip-text from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%">
+          <p className="font-rubik font-extrabold text-center text-9xl mb-10 text-black text-transparent bg-gradient-to-r bg-clip-text from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%">
             BLOOMTRACE
           </p>
         </AnimatedContent>

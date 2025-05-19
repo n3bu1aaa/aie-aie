@@ -13,19 +13,7 @@ import Flower_9 from "../assets/Flower_images/Flower_9.svg";
 import Flower_10 from "../assets/Flower_images/Flower_10.svg";
 import Flower_12 from "../assets/Flower_images/Flower_12.svg";
 import Flower_13 from "../assets/Flower_images/Flower_13.svg";
-import Font_1 from "../assets/Fonts/Font_1.svg";
-import Font_2 from "../assets/Fonts/Font_2.svg";
-import Font_3 from "../assets/Fonts/Font_3.svg";
-import Font_4 from "../assets/Fonts/Font_4.svg";
-import Font_5 from "../assets/Fonts/Font_5.svg";
-import Font_6 from "../assets/Fonts/Font_6.svg";
-import Font_7 from "../assets/Fonts/Font_7.svg";
-import Font_8 from "../assets/Fonts/Font_8.svg";
-import Font_9 from "../assets/Fonts/Font_9.svg";
-import Font_10 from "../assets/Fonts/Font_10.svg";
-import Font_11 from "../assets/Fonts/Font_11.svg";
-import Font_12 from "../assets/Fonts/Font_12.svg";
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 
 let prevColor = 0;
 
@@ -44,39 +32,34 @@ const Level = () => {
   const [colorIndex, setColorIndex] = useState(0);
   const [sizeIndex, setSizeIndex] = useState(0);
   const [accuracy, setAccuracy] = useState(0);
+  const canvasRef = useRef(0);
+
+  useEffect(() => {
+    console.log("in level: " + accuracy);
+  }, [accuracy]);
+
 
   const handleDoneClick = () => {
-    const nextLevel = level + 1;
-    setLevel(nextLevel);
-    navigate(`/intro/${nextLevel}/${accuracy}`);
-    // alert(`Your accuracy was: ${accuracy}`)
+    const accuracyResult = canvasRef.current.calculateAccuracy(); // 👈 Call from ref
+  setAccuracy(accuracyResult);
+
+  const nextLevel = level + 1;
+  navigate(`/intro/${nextLevel}/${accuracyResult}`);
   };
 
   const possibleImages = [
     Flower_1,
-    Font_11,
     Flower_2,
     Flower_3,
     Flower_4,
-    Font_3,
     Flower_5,
-    Font_2,
     Flower_6,
-    Font_9,
-    Font_1,
     Flower_7,
-    Font_4,
     Flower_8,
-    Font_5,
-    Font_8,
     Flower_9,
     Flower_10,
-    Font_6,
-    Font_10,
     Flower_12,
     Flower_13,
-    Font_7,
-    Font_12,
   ];
 
   useEffect(() => {
@@ -103,18 +86,17 @@ const Level = () => {
 
         <div className="w-[800px] h-[800px]">
           <Canvas
-            colorIndex={colorIndex}
-            sizeIndex={sizeIndex}
-            setColorIndex={setColorIndex}
-            setSizeIndex={setSizeIndex}
-            isDrawing={isDrawing}
-            setIsDrawing={setIsDrawing}
-            nextLevel={level}
-            flowerImage={possibleImages[level - 1]}
-            setAccuracy={setAccuracy}
-            id="test_canvas"
-            dpr={[1, 2]}
-          />
+  ref={canvasRef}
+  colorIndex={colorIndex}
+  sizeIndex={sizeIndex}
+  setColorIndex={setColorIndex}
+  setSizeIndex={setSizeIndex}
+  isDrawing={isDrawing}
+  setIsDrawing={setIsDrawing}
+  nextLevel={level}
+  flowerImage={possibleImages[level - 1]}
+  setAccuracy={setAccuracy}
+/>
         </div>
         <div>
           <p className="font-bold">Press D to see your accuracy!</p>

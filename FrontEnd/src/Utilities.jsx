@@ -7,7 +7,6 @@
 
 let smoothedPosition = null;
 
-
 const fingerTips = {
   Thumb: 4,
   indexFinger: 8,
@@ -96,6 +95,8 @@ const drawIndex = (indexLandmark, ctx) => {
    // ⬇️ Move the fake HTML cursor
   const htmlCursor = document.getElementById("finger-cursor");
 const canvas = document.querySelector("canvas"); // Or drawCanvasRef.current if you're in React
+
+
 
 if (htmlCursor && canvas) {
   htmlCursor.style.left = `${screenX}px`;

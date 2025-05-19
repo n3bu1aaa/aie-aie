@@ -48,7 +48,6 @@ const HandTracker = ({ setInputList }) => {
       const ctx = canvasRef.current.getContext("2d");
       const inputList = drawHand(hand, ctx);
 
-      console.log(inputList); // Should say "function"
       if (typeof setInputList === "function") {
         setInputList(inputList);
       }
@@ -63,8 +62,8 @@ const HandTracker = ({ setInputList }) => {
             position: "fixed",
             bottom: 0,
             left: 0,
-            width: 160,
-            height: 120,
+            width: 200,
+            height: 200,
             zIndex: 20,
           }}
         >
@@ -80,15 +79,16 @@ const HandTracker = ({ setInputList }) => {
               left: 0,
             }}
             videoConstraints={{
-              width: 640,
-              height: 480,
+              width: 1000,
+              height: 1000,
               facingMode: "user",
             }}
           />
+          {/* to draw landmarks */}
           <canvas
             ref={canvasRef}
-            width={640}
-            height={480}
+            width={200}
+            height={200}
             style={{
               position: "absolute",
               top: 0,
